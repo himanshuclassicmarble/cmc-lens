@@ -9,21 +9,22 @@ import { Button } from "@/components/ui/button";
 import { BentoGrid, BentoGridItem } from "@/components/bento-grid";
 
 // Types
+interface Metadata {
+  filename?: string;
+  path?: string;
+  url?: string;
+  sourceUrl?: string;
+  title?: string;
+  description?: string;
+  originalSize?: string;
+  timestamp?: string;
+  inputType?: "url" | "file";
+}
+
 interface SearchResult {
   id: string;
   score: number;
-  metadata: {
-    filename?: string;
-    path?: string;
-    url?: string;
-    sourceUrl?: string;
-    title?: string;
-    description?: string;
-    originalSize?: string;
-    timestamp?: string;
-    inputType?: "url" | "file";
-    [key: string]: any;
-  };
+  metadata: Metadata;
 }
 
 interface SearchResultsCardProps {
@@ -104,7 +105,7 @@ const SearchResultsCard: React.FC<SearchResultsCardProps> = ({
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <motion.div
-        className="fixed inset-0 bottom-0 bg-black/40 flex items-center justify-center z-50 p-0 "
+        className="fixed inset-0 bottom-0 bg-black/40 flex items-center justify-center z-50 p-0"
         onClick={onClose}
         role="dialog"
         aria-labelledby="search-results-title"
@@ -123,7 +124,7 @@ const SearchResultsCard: React.FC<SearchResultsCardProps> = ({
                   alt="Search query image"
                   width={800}
                   height={140}
-                  className="w-full h-auto max-h-[40vh] object-cover" // Adjusted class
+                  className="w-full h-auto max-h-[40vh] object-cover"
                   onError={(e) => {
                     e.currentTarget.src = "/placeholder.svg";
                   }}
@@ -141,7 +142,7 @@ const SearchResultsCard: React.FC<SearchResultsCardProps> = ({
               <X className="h-5 w-5" />
             </Button>
             <div className="absolute bottom-0 left-0 right-0">
-              <div className="bg-background/30 p-2 ">
+              <div className="bg-background/30 p-2">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-white/40 rounded-full flex items-center justify-center">
                     <Search className="h-5 w-5 text-blue-600" />

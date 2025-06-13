@@ -6,28 +6,28 @@ import { RotateCcw, ImageIcon, X, Search, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { motion, AnimatePresence } from "framer-motion";
 import SearchResultsCard from "@/components/search-result-card";
 
 // Types
+interface Metadata {
+  filename?: string;
+  path?: string;
+  url?: string;
+  sourceUrl?: string;
+  title?: string;
+  description?: string;
+  originalSize?: string;
+  timestamp?: string;
+  inputType?: "url" | "file";
+}
+
 interface SearchResult {
   id: string;
   score: number;
-  metadata: {
-    filename?: string;
-    path?: string;
-    url?: string;
-    sourceUrl?: string;
-    title?: string;
-    description?: string;
-    originalSize?: string;
-    timestamp?: string;
-    inputType?: "url" | "file";
-    [key: string]: any;
-  };
+  metadata: Metadata;
 }
 
 interface SearchResponse {
@@ -115,7 +115,6 @@ const CameraView: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
   const [isFrontCamera, setIsFrontCamera] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [topK, setTopK] = useState(10);
   const [threshold, setThreshold] = useState(0.7);
   const [showSettings, setShowSettings] = useState(false);
@@ -144,7 +143,7 @@ const CameraView: React.FC = () => {
       console.error("Camera error:", errorMessage);
       setError(errorMessage);
     }
-  }, [isFrontCamera]);
+  }, [isFrontCamera, stream]);
 
   useEffect(() => {
     startCamera();
@@ -153,45 +152,7 @@ const CameraView: React.FC = () => {
         stream.getTracks().forEach((track) => track.stop());
       }
     };
-  }, [startCamera]);
-
-  // Capture photo and trigger search
-  const capturePhoto = useCallback(() => {
-    if (!videoRef.current || !canvasRef.current) return;
-
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const context = canvas.getContext("2d");
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    context?.drawImage(video, 0, 0);
-    const imageDataUrl = canvas.toDataURL("image/jpeg", 0.9);
-
-    setCapturedImage(imageDataUrl);
-    searchSimilarImages(imageDataUrl);
-  }, []);
-
-  // Handle file upload
-  const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      setError("Please select a valid image file");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const imageDataUrl = e.target?.result as string;
-      setCapturedImage(imageDataUrl);
-      searchSimilarImages(imageDataUrl);
-    };
-    reader.readAsDataURL(file);
-    event.target.value = "";
-  }, []);
+  }, [startCamera, stream]);
 
   // Search similar images
   const searchSimilarImages = useCallback(
@@ -235,25 +196,46 @@ const CameraView: React.FC = () => {
     [topK, threshold]
   );
 
-  // Copy results to clipboard
-  const copyResults = useCallback(async () => {
-    if (!searchResults) return;
+  // Capture photo and trigger search
+  const capturePhoto = useCallback(() => {
+    if (!videoRef.current || !canvasRef.current) return;
 
-    try {
-      const resultsText = searchResults.results
-        .map(
-          (result, index) =>
-            `${index + 1}. ID: ${result.id}, Similarity: ${(result.score * 100).toFixed(1)}%, Metadata: ${JSON.stringify(result.metadata)}`
-        )
-        .join("\n");
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d");
 
-      await navigator.clipboard.writeText(resultsText);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy:", err);
-    }
-  }, [searchResults]);
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    context?.drawImage(video, 0, 0);
+    const imageDataUrl = canvas.toDataURL("image/jpeg", 0.9);
+
+    setCapturedImage(imageDataUrl);
+    searchSimilarImages(imageDataUrl);
+  }, [searchSimilarImages]);
+
+  // Handle file upload
+  const handleFileUpload = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      if (!file.type.startsWith("image/")) {
+        setError("Please select a valid image file");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const imageDataUrl = e.target?.result as string;
+        setCapturedImage(imageDataUrl);
+        searchSimilarImages(imageDataUrl);
+      };
+      reader.readAsDataURL(file);
+      event.target.value = "";
+    },
+    [searchSimilarImages]
+  );
 
   // Reset state
   const reset = useCallback(() => {
@@ -261,7 +243,6 @@ const CameraView: React.FC = () => {
     setSearchResults(null);
     setError(null);
     setShowResults(false);
-    setCopied(false);
     setIsProcessing(false);
   }, []);
 
@@ -465,11 +446,10 @@ const CameraView: React.FC = () => {
             )}
           </AnimatePresence>
         </div>
-                {/* Search Results */}
+        {/* Search Results */}
         <AnimatePresence>
           {showResults && searchResults && capturedImage && (
             <motion.div
-            
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}

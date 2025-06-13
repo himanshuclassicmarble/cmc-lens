@@ -1,6 +1,5 @@
 "use client"
 
-import { Card, CardContent } from "@/components/ui/card"
 import { Search, Upload } from "lucide-react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"

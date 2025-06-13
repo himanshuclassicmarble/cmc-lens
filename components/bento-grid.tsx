@@ -1,6 +1,6 @@
 import type React from "react"
 import { cn } from "@/lib/utils"
-import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card"
+import { Card } from "./ui/card"
 
 export const BentoGrid = ({
   className,
@@ -18,16 +18,14 @@ export const BentoGrid = ({
 
 export const BentoGridItem = ({
   className,
-  title,
-  description,
+
   header,
-  icon,
+
 }: {
   className?: string
-  title?: string | React.ReactNode
-  description?: string | React.ReactNode
+
   header?: React.ReactNode
-  icon?: React.ReactNode
+
 }) => {
   return (
     <Card

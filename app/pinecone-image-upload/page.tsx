@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import {
   Loader2,
@@ -16,7 +16,6 @@ import {
   Copy,
   X,
 } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
 
 interface UploadResponse {
   success: true;
@@ -31,6 +30,13 @@ interface UploadResponse {
   sourceUrl?: string;
 }
 
+interface UploadError {
+  success: false;
+  error: string;
+}
+
+type ApiResponse = UploadResponse | UploadError;
+
 export default function Home() {
   const [imageUrl, setImageUrl] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -41,11 +47,13 @@ export default function Home() {
 
   // Debounced URL preview
   const urlDebounceRef = useRef<NodeJS.Timeout | null>(null);
-  const validateAndPreviewUrl = async (url: string) => {
+  
+  const validateAndPreviewUrl = async (url: string): Promise<void> => {
     if (!url.trim()) {
       setImagePreview(null);
       return;
     }
+    
     try {
       new URL(url);
     } catch {
@@ -55,21 +63,25 @@ export default function Home() {
       });
       return;
     }
+    
     setIsValidatingUrl(true);
+    
     try {
       const img = new window.Image();
       img.crossOrigin = "anonymous";
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
+      
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error("Failed to load image"));
         img.src = url;
       });
+      
       setImagePreview(url);
       toast.success("Image URL validated", {
         description: "Preview loaded successfully",
         duration: 2000,
       });
-    } catch (error) {
+    } catch {
       toast.error("Invalid image URL", {
         description: "Unable to load image from the provided URL",
         duration: 4000,
@@ -80,7 +92,7 @@ export default function Home() {
     }
   };
 
-  const handleUrlChange = (url: string) => {
+  const handleUrlChange = (url: string): void => {
     setImageUrl(url);
     if (urlDebounceRef.current) clearTimeout(urlDebounceRef.current);
     if (!url.trim()) {
@@ -92,17 +104,17 @@ export default function Home() {
     }, 700);
   };
 
-  const removeImage = () => {
+  const removeImage = (): void => {
     setImagePreview(null);
     setImageUrl("");
   };
 
-  const copyToClipboard = (text: string, label: string) => {
+  const copyToClipboard = (text: string, label: string): void => {
     navigator.clipboard.writeText(text);
     toast.success(`${label} copied to clipboard`);
   };
 
-  const openImageInNewTab = () => {
+  const openImageInNewTab = (): void => {
     if (response?.sourceUrl) {
       window.open(response.sourceUrl, "_blank");
     } else if (imagePreview) {
@@ -110,7 +122,7 @@ export default function Home() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setResponse(null);
     setIsLoading(true);
@@ -143,7 +155,7 @@ export default function Home() {
       });
 
       clearTimeout(timeoutId);
-      const data = await res.json();
+      const data = await res.json() as ApiResponse;
 
       toast.dismiss(uploadingToast);
 
@@ -163,12 +175,13 @@ export default function Home() {
           duration: 5000,
         });
       }
-    } catch (err: any) {
+    } catch (err) {
       toast.dismiss(uploadingToast);
+      const error = err as Error & { name?: string };
       const errorMessage =
-        err.name === "AbortError"
+        error.name === "AbortError"
           ? "Request timed out. Please try again."
-          : err.message || "An unexpected error occurred";
+          : error.message || "An unexpected error occurred";
       toast.error("Upload failed", {
         description: errorMessage,
         duration: 5000,
@@ -217,6 +230,7 @@ export default function Home() {
                     {isValidatingUrl ? (
                       <Skeleton className="w-full h-full" />
                     ) : (
+                      // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={imagePreview}
                         alt="URL Preview"
