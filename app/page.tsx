@@ -1,134 +1,74 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Camera, Gem, Search, Zap } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Search, Upload } from "lucide-react"
 import Link from "next/link"
+import { motion, AnimatePresence } from "framer-motion"
+
+type App = {
+  name: string;
+  href: string;
+  icon: React.ReactNode;
+  accentColor: string;
+  textColor: string;
+};
+
+function AppCard({ app, index }: { app: App; index: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.1 }}
+      className="group"
+    >
+      <Link href={app.href} className="flex flex-col items-center space-y-2">
+        <motion.div
+          whileHover={{ scale: 1.1 }}
+          transition={{ type: "spring", stiffness: 300 }}
+          className={`p-4 bg-gradient-to-br ${app.accentColor} rounded-xl`}
+        >
+          {app.icon}
+        </motion.div>
+        <span className={`text-sm font-medium text-gray-800 dark:text-gray-200 group-hover:${app.textColor}`}>
+          {app.name}
+        </span>
+      </Link>
+    </motion.div>
+  )
+}
 
 export default function HomePage() {
+  const apps = [
+    {
+      name: "Lens Search",
+      href: "/lens",
+      icon: <Search className="w-8 h-8 text-white" />,
+      accentColor: "from-blue-500 to-cyan-500",
+      textColor: "text-blue-600 dark:text-blue-400",
+    },
+    {
+      name: "Upload",
+      href: "/pinecone-image-upload",
+      icon: <Upload className="w-8 h-8 text-white" />,
+      accentColor: "from-purple-500 to-pink-500",
+      textColor: "text-purple-600 dark:text-purple-400",
+    },
+  ]
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="flex justify-center items-center gap-3 mb-6">
-            <Gem className="h-12 w-12 text-blue-600" />
-            <h1 className="text-4xl font-bold text-gray-900">MarbleAI</h1>
-          </div>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Advanced marble analysis and identification using artificial intelligence
-          </p>
-        </div>
-
-        {/* Main Action Card */}
-        <Card className="mb-8 border-2 border-blue-200 shadow-lg">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl flex items-center justify-center gap-2">
-              <Camera className="h-6 w-6" />
-              Marble Analyzer
-            </CardTitle>
-            <CardDescription className="text-lg">
-              Capture or upload an image to analyze marble samples with AI
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-center">
-            <Link href="/marble-analyzer">
-              <Button size="lg" className="text-lg px-8 py-6 bg-blue-600 hover:bg-blue-700">
-                Start Analysis
-                <Zap className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        {/* Features Grid */}
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Camera className="h-5 w-5 text-blue-600" />
-                Smart Capture
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">
-                Use your camera to capture marble samples with intelligent cropping and optimization
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Search className="h-5 w-5 text-green-600" />
-                AI Analysis
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">
-                Advanced AI identifies material type, patterns, colors, and surface finish properties
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Zap className="h-5 w-5 text-purple-600" />
-                Fast Results
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">
-                Get detailed analysis results in seconds with optimized processing pipeline
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* How it Works */}
-        <Card className="bg-white/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-2xl text-center">How It Works</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-3 gap-8 text-center">
-              <div>
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl font-bold text-blue-600">1</span>
-                </div>
-                <h3 className="font-semibold mb-2">Capture</h3>
-                <p className="text-gray-600 text-sm">
-                  Take a photo or upload an image of your marble sample
-                </p>
-              </div>
-              <div>
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl font-bold text-green-600">2</span>
-                </div>
-                <h3 className="font-semibold mb-2">Analyze</h3>
-                <p className="text-gray-600 text-sm">
-                  AI processes the image to identify key characteristics
-                </p>
-              </div>
-              <div>
-                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl font-bold text-purple-600">3</span>
-                </div>
-                <h3 className="font-semibold mb-2">Results</h3>
-                <p className="text-gray-600 text-sm">
-                  Get detailed analysis with material properties and insights
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Footer */}
-        <div className="text-center mt-12 text-gray-500">
-          <p>Powered by advanced AI and machine learning technology</p>
-        </div>
-      </div>
+    <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="grid grid-cols-2 gap-8 w-full max-w-xs"
+      >
+        <AnimatePresence>
+          {apps.map((app, index) => (
+            <AppCard key={app.name} app={app} index={index} />
+          ))}
+        </AnimatePresence>
+      </motion.div>
     </div>
   )
 }
