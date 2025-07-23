@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { Search, Upload } from "lucide-react"
-import Link from "next/link"
-import { motion, AnimatePresence } from "framer-motion"
+import { Search, Upload } from "lucide-react";
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 
 type App = {
   name: string;
@@ -28,12 +28,14 @@ function AppCard({ app, index }: { app: App; index: number }) {
         >
           {app.icon}
         </motion.div>
-        <span className={`text-sm font-medium text-gray-800 dark:text-gray-200 group-hover:${app.textColor}`}>
+        <span
+          className={`text-sm font-medium text-gray-800 dark:text-gray-200 group-hover:${app.textColor}`}
+        >
           {app.name}
         </span>
       </Link>
     </motion.div>
-  )
+  );
 }
 
 export default function HomePage() {
@@ -52,7 +54,7 @@ export default function HomePage() {
       accentColor: "from-purple-500 to-pink-500",
       textColor: "text-purple-600 dark:text-purple-400",
     },
-  ]
+  ];
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center p-4">
@@ -69,5 +71,5 @@ export default function HomePage() {
         </AnimatePresence>
       </motion.div>
     </div>
-  )
+  );
 }
