@@ -1,186 +1,18 @@
-// "use client";
-//
-// import React, { useState, useRef } from "react";
-// import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input";
-// import { Slider } from "@/components/ui/slider";
-// import { extractDominantColor } from "../color-csv/color-utils";
-// import { colorData } from "../color-csv/color-data";
-// import { ProcessedImageResult } from "../color-csv/types";
-// import Image from "next/image";
-// import { IMG_PATH_CROP, IMG_PATH_URL } from "../color-csv/data-utils";
-//
-// // Define types
-// interface DominantColorInfo {
-//   hex: string;
-//   rgb: [number, number, number];
-//   lab: [number, number, number];
-// }
-//
-// const ColorBasedImageSearch: React.FC = () => {
-//   const [image, setImage] = useState<string | null>(null);
-//   const [color, setColor] = useState<DominantColorInfo | null>(null);
-//   const [results, setResults] = useState<ProcessedImageResult[]>([]);
-//   const [loading, setLoading] = useState<boolean>(false);
-//   const [error, setError] = useState<string | null>(null);
-//   const [tolerance, setTolerance] = useState<number>(25);
-//   const fileInputRef = useRef<HTMLInputElement>(null);
-//
-//   const calculateSimilarity = (
-//     color1: DominantColorInfo,
-//     color2: ProcessedImageResult,
-//   ): number => {
-//     const [L1, a1, b1] = color1.lab;
-//     const [L2, a2, b2] = color2.lab;
-//     return Math.sqrt((L1 - L2) ** 2 + (a1 - a2) ** 2 + (b1 - b2) ** 2);
-//   };
-//
-//   const searchColors = (dominantColor: DominantColorInfo, tol: number) => {
-//     const matches = colorData
-//       .map((item: ProcessedImageResult) => ({
-//         ...item,
-//         similarity: calculateSimilarity(dominantColor, item),
-//       }))
-//       .filter((item) => item.similarity! <= tol)
-//       .sort((a, b) => a.similarity! - b.similarity);
-//     setResults(matches);
-//   };
-//
-//   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-//     const file = event.target.files?.[0];
-//     if (!file) return;
-//
-//     setLoading(true);
-//     setError(null);
-//
-//     try {
-//       const imageUrl = URL.createObjectURL(file);
-//       setImage(imageUrl);
-//       const dominantColor: DominantColorInfo = await extractDominantColor(file);
-//       setColor(dominantColor);
-//       searchColors(dominantColor, tolerance);
-//     } catch (err) {
-//       setError("Error processing image");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-//
-//   const clear = () => {
-//     setImage(null);
-//     setColor(null);
-//     setResults([]);
-//     setError(null);
-//     if (fileInputRef.current) fileInputRef.current.value = "";
-//   };
-//
-//   return (
-//     <div className="p-4 max-w-4xl mx-auto">
-//       <h1 className="text-2xl font-bold mb-4">Color Search</h1>
-//
-//       <div className="mb-4">
-//         <Input
-//           type="file"
-//           ref={fileInputRef}
-//           onChange={handleUpload}
-//           accept="image/*"
-//           className="mb-2"
-//         />
-//         {image && (
-//           <div>
-//             <Image
-//               src={image}
-//               width={100}
-//               height={100}
-//               alt="Uploaded"
-//               className="h-48 w-72 mx-auto mb-2"
-//             />
-//             <Button onClick={clear} variant="destructive">
-//               Clear
-//             </Button>
-//           </div>
-//         )}
-//       </div>
-//
-//       {loading && <p className="text-center">Loading...</p>}
-//       {error && <p className="text-red-500">{error}</p>}
-//
-//       {color && (
-//         <div className="mb-4 p-4 border rounded">
-//           <h2 className="text-lg font-semibold">Main Color</h2>
-//           <div
-//             className="w-16 h-16 border mb-2"
-//             style={{ backgroundColor: color.hex }}
-//           />
-//           <p>HEX: {color.hex}</p>
-//           <p>RGB: {color.rgb.join(", ")}</p>
-//           <p>Tolerance: {tolerance}</p>
-//           <Slider
-//             min={5}
-//             max={50}
-//             value={[tolerance]}
-//             onValueChange={(value: number[]) => {
-//               setTolerance(value[0]);
-//               if (color) searchColors(color, value[0]);
-//             }}
-//             className="my-2"
-//           />
-//         </div>
-//       )}
-//
-//       {results.length > 0 && (
-//         <div>
-//           <h2 className="text-lg font-semibold">Results ({results.length})</h2>
-//           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-//             {results.map((result: ProcessedImageResult) => (
-//               <div key={result.lotNo} className="border p-4 rounded">
-//                 <Image
-//                   alt="color Image"
-//                   src={`${IMG_PATH_URL}/${IMG_PATH_CROP}/${result.lotNo}.webp`}
-//                   width={100}
-//                   height={100}
-//                 />
-//                 <div
-//                   className="w-12 h-12 border mb-2"
-//                   style={{ backgroundColor: result.hex }}
-//                 />
-//                 <p>Lot: {result.lotNo}</p>
-//                 <p>
-//                   Match:{" "}
-//                   {(100 - (result.similarity! / tolerance) * 100).toFixed(1)}%
-//                 </p>
-//                 <p>HEX: {result.hex}</p>
-//                 <p>RGB: {result.rgb.join(", ")}</p>
-//               </div>
-//             ))}
-//           </div>
-//         </div>
-//       )}
-//
-//       {color && results.length === 0 && !loading && (
-//         <p className="text-center">
-//           No similar colors found. Try adjusting tolerance.
-//         </p>
-//       )}
-//     </div>
-//   );
-// };
-//
-// export default ColorBasedImageSearch;
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Camera, CameraType } from "react-camera-pro";
 import {
   Camera as CameraIcon,
   Upload,
   X,
   RotateCcw,
-  Grid3X3,
   ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
@@ -195,19 +27,49 @@ interface DominantColorInfo {
   lab: [number, number, number];
 }
 
+const RESULTS_PER_PAGE = 15;
+
 const ColorSearch: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
   const [color, setColor] = useState<DominantColorInfo | null>(null);
   const [results, setResults] = useState<ProcessedImageResult[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [tolerance, setTolerance] = useState<number>(25);
   const [facingMode, setFacingMode] = useState<"user" | "environment">(
     "environment",
   );
-  const [showGrid, setShowGrid] = useState<boolean>(true);
+  const [frameSize, setFrameSize] = useState({ width: 350, height: 350 });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const camera = useRef<CameraType>(null);
+
+  // Handle responsive frame sizing after hydration
+  useEffect(() => {
+    const updateFrameSize = () => {
+      const vw = window.innerWidth;
+
+      if (vw <= 480) {
+        setFrameSize({
+          width: Math.min(280, vw - 40),
+          height: Math.min(280, vw - 40),
+        });
+      } else if (vw <= 768) {
+        setFrameSize({ width: 400, height: 400 });
+      } else {
+        setFrameSize({ width: 450, height: 450 });
+      }
+    };
+
+    // Set initial size
+    updateFrameSize();
+
+    // Add resize listener
+    window.addEventListener("resize", updateFrameSize);
+
+    // Cleanup
+    return () => window.removeEventListener("resize", updateFrameSize);
+  }, []);
 
   const calculateSimilarity = (
     color1: DominantColorInfo,
@@ -227,6 +89,7 @@ const ColorSearch: React.FC = () => {
       .filter((item) => item.similarity! <= tol)
       .sort((a, b) => a.similarity! - b.similarity!);
     setResults(matches);
+    setCurrentPage(1); // Reset to first page when new search is performed
   };
 
   const processImage = async (file: File, imageUrl: string) => {
@@ -276,11 +139,22 @@ const ColorSearch: React.FC = () => {
     setColor(null);
     setResults([]);
     setError(null);
+    setCurrentPage(1);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const switchCamera = () => {
     setFacingMode((prev) => (prev === "user" ? "environment" : "user"));
+  };
+
+  // Pagination calculations
+  const totalPages = Math.ceil(results.length / RESULTS_PER_PAGE);
+  const startIndex = (currentPage - 1) * RESULTS_PER_PAGE;
+  const endIndex = startIndex + RESULTS_PER_PAGE;
+  const currentResults = results.slice(startIndex, endIndex);
+
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
   };
 
   return (
@@ -298,37 +172,17 @@ const ColorSearch: React.FC = () => {
         />
       </div>
 
-      {/* Top Controls */}
-      <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/60 to-transparent p-2 z-10">
-        <div className="flex items-center justify-between">
-          <Button
-            onClick={() => setShowGrid(!showGrid)}
-            size="sm"
-            variant={showGrid ? "default" : "secondary"}
-            className="bg-white/20 hover:bg-white/30 text-white border-0"
-          >
-            <Grid3X3 className="w-4 h-4" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Capture Frame with Grid */}
+      {/* Responsive Capture Frame (Grid Removed) */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
         <div
-          className="border-2  relative overflow-hidden"
+          className="border-2 border-white/60 relative overflow-hidden"
           style={{
-            width: "350px",
-            height: "350px",
+            width: `${frameSize.width}px`,
+            height: `${frameSize.height}px`,
             boxShadow: "0 0 0 2000px rgba(0,0,0,0.3)",
           }}
         >
-          {showGrid && (
-            <div className="absolute inset-0 grid grid-cols-3 grid-rows-3">
-              {Array.from({ length: 9 }).map((_, i) => (
-                <div key={i} className="border border-white/20"></div>
-              ))}
-            </div>
-          )}
+          {/* Corner indicators */}
           <div className="absolute top-2 left-2 w-6 h-6 border-l-2 border-t-2 border-white/60"></div>
           <div className="absolute top-2 right-2 w-6 h-6 border-r-2 border-t-2 border-white/60"></div>
           <div className="absolute bottom-2 left-2 w-6 h-6 border-l-2 border-b-2 border-white/60"></div>
@@ -337,7 +191,7 @@ const ColorSearch: React.FC = () => {
       </div>
 
       {/* Bottom Controls */}
-      <div className="absolute bottom-6 left-0 right-0 flex justify-center items-center gap-2 z-30">
+      <div className="absolute bottom-6 left-0 right-0 flex justify-center items-center gap-2 z-30 px-4">
         <Button
           onClick={() => fileInputRef.current?.click()}
           size="icon"
@@ -390,18 +244,22 @@ const ColorSearch: React.FC = () => {
 
       {/* Results Card */}
       <Card
-        className={`absolute bottom-0 left-0 right-0 rounded-t-3xl transition-all duration-500 ${image || results.length > 0 ? "translate-y-0" : "translate-y-full"
+        className={`p-2 absolute bottom-0 left-0 right-0 rounded-t-3xl transition-all duration-500 ${image || results.length > 0 ? "translate-y-0" : "translate-y-full"
           } max-h-[70vh] overflow-hidden z-40`}
       >
         <div className="w-12 h-1 bg-background rounded-full mx-auto mt-2"></div>
         {color && (
           <CardHeader className="p-2">
             <div className="flex items-center justify-between">
-              <Button onClick={clear} size="sm" variant="ghost" className="p-1">
-                <ArrowLeft className="w-5 h-5 mr-1" />
-                Back
+              <Button
+                onClick={clear}
+                size="sm"
+                variant="ghost"
+                className="p-2 mr-1 rounded-full"
+              >
+                <ArrowLeft className="w-6 h-6" />
+                <span className="ml-2 text-sm">Back</span>
               </Button>
-              <CardTitle className="text-lg">Color Analysis</CardTitle>
               <div className="w-10"></div> {/* Spacer for alignment */}
             </div>
           </CardHeader>
@@ -469,16 +327,23 @@ const ColorSearch: React.FC = () => {
                 <h3 className="font-semibold text-lg">
                   Similar Colors ({results.length})
                 </h3>
-                <Badge variant="secondary">
-                  {
-                    results.filter((r) => r.similarity! / tolerance < 0.3)
-                      .length
-                  }{" "}
-                  close matches
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">
+                    {
+                      results.filter((r) => r.similarity! / tolerance < 0.3)
+                        .length
+                    }{" "}
+                    close matches
+                  </Badge>
+                  {totalPages > 1 && (
+                    <Badge variant="outline">
+                      Page {currentPage} of {totalPages}
+                    </Badge>
+                  )}
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                {results.map((result: ProcessedImageResult) => {
+                {currentResults.map((result: ProcessedImageResult) => {
                   const matchPercent =
                     100 - (result.similarity! / tolerance) * 100;
                   return (
@@ -514,18 +379,107 @@ const ColorSearch: React.FC = () => {
                             style={{ backgroundColor: result.hex }}
                           />
                           <span className="font-medium text-sm">
-                            Lot {result.lotNo}
+                            {result.qualityGroup}
+                            <div className="space-y-1 text-xs text-muted-foreground">
+                              {result.color}
+                            </div>
                           </span>
-                        </div>
-                        <div className="space-y-1 text-xs text-muted-foreground">
-                          <div>HEX: {result.hex}</div>
-                          <div>RGB: {result.rgb.join(", ")}</div>
                         </div>
                       </CardContent>
                     </Card>
                   );
                 })}
               </div>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-4 pb-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="w-8 h-8 p-0"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+
+                  <div className="flex items-center gap-1">
+                    {/* Show first page */}
+                    {currentPage > 3 && (
+                      <>
+                        <Button
+                          variant={currentPage === 1 ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => goToPage(1)}
+                          className="w-8 h-8 p-0 text-xs"
+                        >
+                          1
+                        </Button>
+                        {currentPage > 4 && (
+                          <span className="text-muted-foreground text-sm px-1">
+                            ...
+                          </span>
+                        )}
+                      </>
+                    )}
+
+                    {/* Show pages around current page */}
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter(
+                        (page) =>
+                          page === currentPage ||
+                          page === currentPage - 1 ||
+                          page === currentPage + 1 ||
+                          (currentPage <= 3 && page <= 5) ||
+                          (currentPage >= totalPages - 2 &&
+                            page >= totalPages - 4),
+                      )
+                      .map((page) => (
+                        <Button
+                          key={page}
+                          variant={page === currentPage ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => goToPage(page)}
+                          className="w-8 h-8 p-0 text-xs"
+                        >
+                          {page}
+                        </Button>
+                      ))}
+
+                    {/* Show last page */}
+                    {currentPage < totalPages - 2 && (
+                      <>
+                        {currentPage < totalPages - 3 && (
+                          <span className="text-muted-foreground text-sm px-1">
+                            ...
+                          </span>
+                        )}
+                        <Button
+                          variant={
+                            currentPage === totalPages ? "default" : "outline"
+                          }
+                          size="sm"
+                          onClick={() => goToPage(totalPages)}
+                          className="w-8 h-8 p-0 text-xs"
+                        >
+                          {totalPages}
+                        </Button>
+                      </>
+                    )}
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="w-8 h-8 p-0"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
             </div>
           )}
           {color && results.length === 0 && !loading && (

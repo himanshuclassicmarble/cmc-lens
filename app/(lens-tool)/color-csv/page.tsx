@@ -3,13 +3,14 @@
 import { useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { FileIcon, Loader2, Download } from "lucide-react";
+import { FileIcon, Download } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ProcessedImageResult } from "./types";
 import { downloadCSV, downloadJSON, handleImageUpload } from "./data-utils";
 import ColorTable from "./color-table";
+import { Progress } from "@/components/ui/progress"; // ✅ new import
 
 export default function Home() {
   const [processedResults, setProcessedResults] = useState<
@@ -66,9 +67,12 @@ export default function Home() {
           )}
 
           {isLoading && (
-            <div className="flex justify-center items-center gap-2 text-gray-500 py-4">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <span className="text-sm">Processing...</span>
+            <div className="py-4">
+              <Progress value={100} className="h-2 animate-pulse" />{" "}
+              {/* ✅ Replaces Loader2 */}
+              <p className="text-sm text-gray-500 mt-2 text-center">
+                Processing...
+              </p>
             </div>
           )}
 

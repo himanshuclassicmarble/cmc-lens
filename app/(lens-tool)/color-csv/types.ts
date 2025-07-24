@@ -1,7 +1,7 @@
 export interface JsonColorData {
   color: string;
   qualityGroup: string;
-  count: number;
+  count?: number;
   imageName: string | null;
 }
 

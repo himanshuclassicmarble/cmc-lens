@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, Upload } from "lucide-react";
+import { Search } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -42,17 +42,10 @@ export default function HomePage() {
   const apps = [
     {
       name: "Lens Search",
-      href: "/lens",
+      href: "/image-search",
       icon: <Search className="w-8 h-8 text-white" />,
       accentColor: "from-blue-500 to-cyan-500",
       textColor: "text-blue-600 dark:text-blue-400",
-    },
-    {
-      name: "Upload",
-      href: "/pinecone-image-upload",
-      icon: <Upload className="w-8 h-8 text-white" />,
-      accentColor: "from-purple-500 to-pink-500",
-      textColor: "text-purple-600 dark:text-purple-400",
     },
   ];
 
@@ -62,7 +55,7 @@ export default function HomePage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="grid grid-cols-2 gap-8 w-full max-w-xs"
+        className="grid grid-cols-1 gap-8 w-full max-w-xs"
       >
         <AnimatePresence>
           {apps.map((app, index) => (
